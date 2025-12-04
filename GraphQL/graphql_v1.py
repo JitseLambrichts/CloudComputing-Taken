@@ -235,15 +235,23 @@ myWebApp = Flask("My App")
 
 @myWebApp.route("/")
 def hello_world():
+    return render_template("index.html")
+
+@myWebApp.route("/api/matches")
+def api_matches():
     query_string = """
     {
-      matches(limit: 5) {
+      matches(limit: 10) {
         datum
         thuisploeg {
           naam
         }
         uitploeg {
           naam
+        }
+        score {
+          thuisploegDoelpunten
+          uitploegDoelpunten
         }
       }
     }

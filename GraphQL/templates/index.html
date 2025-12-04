@@ -1,390 +1,170 @@
-<!--Voor front-end -> bronvermelding Copilot -->
+<!--Voor front-end => bronvermelding Copilot -->
 
 <!DOCTYPE html>
 <html lang="nl">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Football Stats GraphQL API</title>
+    <title>Voetbal Wedstrijden</title>
     <style>
-        :root {
-            --primary-color: #37003c; /* Premier League paars */
-            --accent-color: #00ff85;  /* Premier League groen */
-            --text-color: #333;
-            --bg-color: #f4f4f4;
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
         }
-
+        
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: var(--bg-color);
-            color: var(--text-color);
-            margin: 0;
-            display: flex;
-            justify-content: center;
-            align-items: center;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             min-height: 100vh;
-            padding: 2rem 0;
+            padding: 20px;
         }
-
+        
         .container {
-            background: white;
-            padding: 3rem;
-            border-radius: 20px;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
-            text-align: center;
-            max-width: 700px;
-            width: 90%;
+            max-width: 1000px;
+            margin: 0 auto;
         }
-
+        
         h1 {
-            color: var(--primary-color);
-            font-size: 2.5rem;
-            margin-bottom: 0.5rem;
-        }
-
-        .subtitle {
-            color: #666;
-            font-size: 1.1rem;
-            margin-bottom: 2rem;
-        }
-
-        .features {
-            margin-bottom: 2.5rem;
-            text-align: left;
-        }
-
-        .dropdown {
-            width: 100%;
-        }
-
-        .dropdown-header {
-            background: var(--primary-color);
+            text-align: center;
             color: white;
-            padding: 1rem 1.5rem;
-            border-radius: 10px;
-            cursor: pointer;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
+            margin-bottom: 40px;
+        }
+        
+        .matches-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+        }
+        
+        .match-card {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        
+        .match-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.3);
+        }
+        
+        .match-date {
+            color: #667eea;
+            font-size: 12px;
             font-weight: bold;
+            margin-bottom: 15px;
+            text-transform: uppercase;
         }
-
-        .dropdown-header:hover {
-            background: #4a0050;
-        }
-
-        .dropdown-arrow {
-            transition: transform 0.3s;
-        }
-
-        .dropdown.active .dropdown-arrow {
-            transform: rotate(180deg);
-        }
-
-        .dropdown-content {
-            display: none;
-            background: #fafafa;
-            border: 1px solid #eee;
-            border-radius: 0 0 10px 10px;
-            margin-top: -5px;
-            padding-top: 10px;
-        }
-
-        .dropdown.active .dropdown-content {
-            display: block;
-        }
-
-        .query-item {
-            padding: 0.8rem 1.5rem;
-            border-bottom: 1px solid #eee;
-            cursor: pointer;
-            transition: background 0.2s;
-        }
-
-        .query-item:hover {
-            background: #f0f0f0;
-        }
-
-        .query-item:last-child {
-            border-bottom: none;
-        }
-
-        .query-title {
-            font-weight: bold;
-            color: var(--primary-color);
-            margin-bottom: 0.3rem;
+        
+        .match-content {
             display: flex;
-            justify-content: space-between;
             align-items: center;
+            justify-content: space-between;
+            gap: 15px;
         }
-
-        .copy-btn {
-            background: none;
-            border: none;
-            cursor: pointer;
-            font-size: 1rem;
-            padding: 0.3rem 0.5rem;
-            border-radius: 5px;
-            transition: background 0.2s;
+        
+        .team {
+            flex: 1;
+            text-align: center;
         }
-
-        .copy-btn:hover {
-            background: rgba(55, 0, 60, 0.1);
+        
+        .team-name {
+            font-size: 16px;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 8px;
         }
-
-        .copy-btn.copied {
-            color: var(--accent-color);
+        
+        .vs {
+            font-size: 12px;
+            color: #999;
+            font-weight: bold;
+            padding: 0 10px;
         }
-
-        .query-code {
-            display: none;
-            background: #2d2d2d;
-            color: #f8f8f2;
-            padding: 1rem;
+        
+        .loading {
+            text-align: center;
+            color: white;
+            font-size: 18px;
+        }
+        
+        .error {
+            background: #ff6b6b;
+            color: white;
+            padding: 15px;
             border-radius: 8px;
-            margin-top: 0.5rem;
-            font-family: 'Courier New', monospace;
-            font-size: 0.85rem;
-            white-space: pre-wrap;
-            text-align: left;
-            overflow-x: auto;
-        }
-
-        .query-item.expanded .query-code {
-            display: block;
-        }
-
-        .btn {
-            display: inline-block;
-            background-color: var(--primary-color);
-            color: white;
-            padding: 15px 30px;
-            text-decoration: none;
-            border-radius: 50px;
-            font-weight: bold;
-            font-size: 1.1rem;
-            transition: transform 0.2s, box-shadow 0.2s;
-            border: 2px solid var(--primary-color);
-        }
-
-        .btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(55, 0, 60, 0.3);
-            background-color: white;
-            color: var(--primary-color);
-        }
-
-        .footer {
-            margin-top: 2rem;
-            font-size: 0.9rem;
-            color: #888;
+            margin-bottom: 20px;
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>⚽ Football Stats API</h1>
-        <p class="subtitle">Verken uitgebreide voetbaldata via onze GraphQL interface.</p>
-        
-        <div class="features">
-            <div class="dropdown" id="queryDropdown">
-                <div class="dropdown-header" onclick="toggleDropdown()">
-                    <span>📋 Bekijk mogelijke queries</span>
-                    <span class="dropdown-arrow">▼</span>
-                </div>
-                <div class="dropdown-content">
-                    <div class="query-item" onclick="toggleQuery(this, event)">
-                        <div class="query-title">
-                            <span>🔍 Een speler opzoeken</span>
-                            <button class="copy-btn" onclick="copyQuery(this, event)" title="Kopieer query">📋</button>
-                        </div>
-                        <pre class="query-code">query {
-  speler(name: "Mohamed Salah") {
-    naam
-    leeftijd
-    geboorteDatum
-    positie
-    nationaliteit
-    minutenGespeeld
-    aantalDoelpunten
-    aantalAssisten
-    aantalGeleKaarten
-    aantalRodeKaarten
-    club {
-      naam
-      eindplaats
-    }
-  }
-}</pre>
-                    </div>
-                    <div class="query-item" onclick="toggleQuery(this, event)">
-                        <div class="query-title">
-                            <span>🏆 Competitie gegevens ophalen</span>
-                            <button class="copy-btn" onclick="copyQuery(this, event)" title="Kopieer query">📋</button>
-                        </div>
-                        <pre class="query-code">{
-  league(id: 0) {
-    naam
-    seizoen
-    aantalMatches
-    gemDoelpunten
-    matches(limit: 5) {
-      thuisploeg {
-        naam
-      }
-      uitploeg {
-        naam
-      }
-      score {
-        thuisploegDoelpunten
-        uitploegDoelpunten
-      }
-    }
-  }
-}</pre>
-                    </div>
-                    <div class="query-item" onclick="toggleQuery(this, event)">
-                        <div class="query-title">
-                            <span>📅 Alle wedstrijden ophalen (met paginatie)</span>
-                            <button class="copy-btn" onclick="copyQuery(this, event)" title="Kopieer query">📋</button>
-                        </div>
-                        <pre class="query-code">query {
-  matches(limit: 5, offset: 0) {
-    datum
-    stadion
-    aantalBezoekers
-    thuisploeg {
-      naam
-    }
-    uitploeg {
-      naam
-    }
-    score {
-      thuisploegDoelpunten
-      uitploegDoelpunten
-    }
-    winnaar {
-      naam
-    }
-  }
-}</pre>
-                    </div>
-                    <div class="query-item" onclick="toggleQuery(this, event)">
-                        <div class="query-title">
-                            <span>🏟️ Wedstrijden van een specifiek team</span>
-                            <button class="copy-btn" onclick="copyQuery(this, event)" title="Kopieer query">📋</button>
-                        </div>
-                        <pre class="query-code">query {
-  teamMatches(teamName: "Liverpool", limit: 10) {
-    datum
-    thuisploeg {
-      naam
-    }
-    uitploeg {
-      naam
-    }
-    score {
-      thuisploegDoelpunten
-      thuisploegTijdstippenDoelpunten
-      uitploegDoelpunten
-      uitploegTijdstippenDoelpunten
-      thuisploegVerwachteDoelpunten
-      uitploegVerwachteDoelpunten
-    }
-  }
-}</pre>
-                    </div>
-                    <div class="query-item" onclick="toggleQuery(this, event)">
-                        <div class="query-title">
-                            <span>📊 Wedstrijd details</span>
-                            <button class="copy-btn" onclick="copyQuery(this, event)" title="Kopieer query">📋</button>
-                        </div>
-                        <pre class="query-code">query {
-  matches(limit: 1) {
-    datum
-    stadion
-    aantalBezoekers
-    scheidsrechter
-    thuisploeg {
-      naam
-      wedstrijdenGewonnenThuis
-      wedstrijdenGespeeld
-      wedstrijdenVerlorenThuis
-      gemPuntenPerMatch
-      eindplaats
-      doelpuntenGemaakt
-      doelpuntenTegen
-    }
-    uitploeg {
-      naam
-      wedstrijdenGewonnenUit
-      wedstrijdenGespeeld
-      wedstrijdenVerlorenUit
-      gemPuntenPerMatch
-      eindplaats
-      doelpuntenGemaakt
-      doelpuntenTegen
-    }
-    score {
-      thuisploegDoelpunten
-      uitploegDoelpunten
-      thuisploegTijdstippenDoelpunten
-      uitploegTijdstippenDoelpunten
-    }
-  }
-}</pre>
-                    </div>
-                </div>
-            </div>
+        <h1>⚽ Voetbal Wedstrijden</h1>
+        <div id="matches-container" class="matches-grid">
+            <div class="loading">Laden...</div>
         </div>
-        <a href="/graphiql" class="btn">Open GraphiQL Interface</a>
     </div>
 
     <script>
-        function toggleDropdown() {
-            document.getElementById('queryDropdown').classList.toggle('active');
-        }
-
-        function toggleQuery(element, event) {
-            // Voorkom toggle als er op de copy button geklikt wordt
-            if (event.target.classList.contains('copy-btn')) {
-                return;
-            }
-            element.classList.toggle('expanded');
-        }
-
-        function copyQuery(button, event) {
-            event.stopPropagation();
-            event.preventDefault();
-            
-            const queryItem = button.closest('.query-item');
-            const queryCode = queryItem.querySelector('.query-code').textContent.trim();
-
-            // Gebruik textarea fallback (werkt altijd)
-            const textarea = document.createElement('textarea');
-            textarea.value = queryCode;
-            textarea.style.position = 'fixed';
-            textarea.style.left = '-9999px';
-            textarea.style.top = '0';
-            document.body.appendChild(textarea);
-            textarea.focus();
-            textarea.select();
-            
+        async function loadMatches() {
             try {
-                document.execCommand('copy');
-                button.innerHTML = '✅';
-                button.classList.add('copied');
-                setTimeout(function() {
-                    button.innerHTML = '📋';
-                    button.classList.remove('copied');
-                }, 2000);
-            } catch (err) {
-                console.error('Kopiëren mislukt:', err);
-                alert('Kopiëren mislukt. Probeer handmatig te kopiëren.');
+                const response = await fetch('/api/matches'); // matches ophalen
+                const data = await response.json();
+                
+                if (data.errors) {
+                    document.getElementById('matches-container').innerHTML = 
+                        `<div class="error">Fout: ${data.errors[0]}</div>`;
+                    return;
+                }
+                
+                const matchesHtml = data.matches.map(match => {
+                    // Parse de datum correct
+                    const datumObj = new Date(match.datum);
+                    
+                    // Als het invalid is, probeer het als string weer te geven
+                    const datumNL = isNaN(datumObj.getTime()) 
+                        ? match.datum 
+                        : datumObj.toLocaleDateString('nl-NL', {
+                            weekday: 'long',
+                            year: 'numeric',
+                            month: 'long',
+                            day: 'numeric',
+                            hour: '2-digit',
+                            minute: '2-digit'
+                        });
+                    
+                    console.log('Datum:', match.datum);
+                    
+                    return `
+                    <div class="match-card">
+                        <div class="match-date">${datumNL}</div>
+                        <div class="match-content">
+                            <div class="team">
+                                <div class="team-name">${match.thuisploeg.naam}</div>
+                                <div class="score">${match.score.thuisploegDoelpunten}</div>
+                            </div>
+                            <div class="vs">VS</div>
+                            <div class="team">
+                                <div class="team-name">${match.uitploeg.naam}</div>
+                                <div class="score">${match.score.uitploegDoelpunten}</div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                }).join('');
+                
+                document.getElementById('matches-container').innerHTML = matchesHtml || 
+                    '<div class="error">Geen wedstrijden gevonden</div>';
+            } catch (error) {
+                document.getElementById('matches-container').innerHTML = 
+                    `<div class="error">Fout bij laden: ${error.message}</div>`;
             }
-            
-            document.body.removeChild(textarea);
         }
+        
+        // Laad wedstrijden bij pagina laden
+        loadMatches();
     </script>
 </body>
 </html>
