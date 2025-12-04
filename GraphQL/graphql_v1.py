@@ -1,7 +1,10 @@
 from graphene import *
 from flask import Flask, render_template
 from flask_graphql import GraphQLView
+from graphql import graphql
 import pandas as pd
+import requests as req
+import json
 
 dfLeague = pd.read_csv("league_stats.csv", sep=",", encoding="latin-1")
 dfMatches = pd.read_csv("matches.csv", sep=",", encoding="latin-1")
@@ -232,7 +235,23 @@ myWebApp = Flask("My App")
 
 @myWebApp.route("/")
 def hello_world():
-    return render_template("index.html")
+    query_string = """
+    {
+      matches(limit: 5) {
+        datum
+        thuisploeg {
+          naam
+        }
+        uitploeg {
+          naam
+        }
+      }
+    }
+    """
+    result = graphql(schema, query_string)
+    if result.errors:
+        return json.dumps({"errors": [str(e) for e in result.errors]})
+    return json.dumps(result.data, default=str)
 
 myWebApp.add_url_rule('/graphiql',
                         view_func=GraphQLView.as_view('graphql',

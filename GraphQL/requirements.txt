@@ -8,3 +8,4 @@ graphql-server-core==1.2.0
 flask-cors==6.0.1
 flask-graphql==2.0.1
 pandas
+requests
