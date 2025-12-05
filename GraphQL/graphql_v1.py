@@ -27,8 +27,9 @@ class League(ObjectType):
                     offset = Argument(Int, default_value=0, description="Aantal matches over te slaan"),
                     description="Alle wedstrijden in deze competitie")
 
+    # Alle matchen voor de league
     def resolve_matches(parent, info, limit=None, offset=0):
-        all_matches = zoekMatches()
+        all_matches = [maakMatch(row) for index, row in dfMatches.iterrows()]
         if limit:
             return all_matches[offset: offset + limit]
         return all_matches[offset:]
@@ -70,6 +71,7 @@ class Team(ObjectType):
     doelpunten_tegen = Field(Int, description="Totaal aantal tegen doelpunten")
     spelers = Field(List(lambda: Player), description="Lijst van spelers in het team")
 
+    # De speler van de teams aanmaken
     def resolve_spelers(parent, info):
         team_spelers = dfPlayers[dfPlayers['Current Club'] == parent.naam]
         return [maakPlayer(speler_id) for speler_id in team_spelers['id']]
@@ -87,21 +89,6 @@ class Player(ObjectType):
     aantal_assisten = Field(Int, description="Totaal aantal assists")
     aantal_gele_kaarten = Field(Int, description="Totaal aantal gele kaarten")
     aantal_rode_kaarten = Field(Int, description="Totaal aantal rode kaarten")
-
-def zoekMatches():
-    return [maakMatch(row) for index, row in dfMatches.iterrows()]
-
-def zoekPloeg(team_name):
-    team_row = dfTeams[dfTeams['common_name']==team_name]
-    if not team_row.empty:
-        return maakTeam(team_row.iloc[0])
-    return None
-
-def zoekScore(id):
-    return maakScore(id)
-
-def zoekWinnaar(id):
-    return (maakWinnaar(id))
 
 # Hulp van Copilot (-->bronvermelding)
 def formatTijdstippen(string):
@@ -125,8 +112,8 @@ def maakLeague(row):
         naam = row['name'],
         seizoen = row['season'],
         aantal_matches = row['total_matches'],
-        gem_doelpunten = row['average_goals_per_match'],
-        matches = zoekMatches()
+        gem_doelpunten = row['average_goals_per_match']
+        # Geen matches "aanmaken" want GraphQL gaat automatisch de resolve_matches oproepen
     )
 
 def maakMatch(row):
@@ -210,7 +197,7 @@ class Query(ObjectType):
         return None
     
     def resolve_spelers(parent, info):
-        return [maakPlayer(speler_id) for speler_id in dfPlayers['id']]     # Voor alle spelers op te vragen
+        return [maakPlayer(speler_id) for speler_id in dfPlayers['id']]
     
     def resolve_league(parent, info, id):
         return maakLeague(dfLeague[dfLeague['id']==id].iloc[0])
@@ -222,8 +209,7 @@ class Query(ObjectType):
         return None
     
     def resolve_matches(parent, info, limit=None, offset=0):
-        # Gebruik dfMatches slice en maakMatch voor elke rij
-        rows = dfMatches.iloc[offset: (offset + limit) if limit else None]
+        rows = dfMatches.iloc[offset: (offset + limit) if limit else None]  # Hier wordt een offset gebruik om een aantal matches te kunnen opvragen vanaf een aantal (bv. de laatste 5 matches van een seizoen opvragen)
         return [maakMatch(row) for index, row in rows.iterrows()]
     
     def resolve_team_matches(parent, info, team_name, limit=0, offset=0):
@@ -249,7 +235,8 @@ def api_matches():
     team = request.args.get('team', None) 
     
     if team:
-        # Haal team statistieken EN wedstrijden op
+        # Hier al een query ingeven om deze te verwerken
+        # Zowel zoeken op de matches een team als de statistieken van een team
         query_string = f"""
         {{
             team(name: "{team}") {{
@@ -295,10 +282,10 @@ def api_matches():
             return json.dumps({"errors": [str(e) for e in result.errors]})
         return json.dumps({
             "team": result.data.get("team"),
-            "matches": result.data.get("teamMatches", [])
-        }, default=str)
+            "matches": result.data.get("teamMatches", [])    # De [] zorgt ervoor dat bij afwezige teamMatches de API een lege lijst teruggeeft 
+        })
     else:
-        # Standaard: alle wedstrijden
+        # Anders de eerste 5 matchen laten zien
         query_string = """
         {
           matches(limit: 5) {
