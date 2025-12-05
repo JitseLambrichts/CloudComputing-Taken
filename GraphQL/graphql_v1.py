@@ -1,5 +1,5 @@
 from graphene import *
-from flask import Flask, render_template
+from flask import Flask, render_template, request
 from flask_graphql import GraphQLView
 from graphql import graphql
 import pandas as pd
@@ -199,6 +199,7 @@ class Query(ObjectType):
     """Root query voor alle beschikbare zoekopdrachten"""
     speler = Field(Player, name=Argument(String, description="Volledige naam van de speler"), description="Zoek een speler op naam")
     league = Field(League, id=Argument(Int, default_value=0, description="ID van de competitie"), description="Haal competitiegegevens op")
+    team = Field(Team, name=Argument(String, required=True, description="Naam van het team"), description="Statistieken van een specifiek team ophalen")
     matches = List(Match, limit=Argument(Int, description="Maximaal aantal resultaten"), offset=Argument(Int, default_value=0, description="Aantal over te slaan"), description="Alle wedstrijden ophalen")
     team_matches = List(Match, team_name=Argument(String, required=True, description="Naam van het team"), limit=Argument(Int, description="Maximaal aantal resultaten"), offset=Argument(Int, default_value=0, description="Aantal over te slaan"), description="Alle wedstrijden van een specifiek team")
 
@@ -213,6 +214,12 @@ class Query(ObjectType):
     
     def resolve_league(parent, info, id):
         return maakLeague(dfLeague[dfLeague['id']==id].iloc[0])
+    
+    def resolve_team(parent, info, name):
+        team_row = dfTeams[dfTeams['common_name'] == name]
+        if not team_row.empty:
+            return maakTeam(team_row.iloc[0])
+        return None
     
     def resolve_matches(parent, info, limit=None, offset=0):
         # Gebruik dfMatches slice en maakMatch voor elke rij
@@ -239,27 +246,90 @@ def hello_world():
 
 @myWebApp.route("/api/matches")
 def api_matches():
-    query_string = """
-    {
-      matches(limit: 10) {
-        datum
-        thuisploeg {
-          naam
+    team = request.args.get('team', None) 
+    
+    if team:
+        # Haal team statistieken EN wedstrijden op
+        query_string = f"""
+        {{
+            team(name: "{team}") {{
+                naam
+                eindplaats
+                wedstrijdenGespeeld
+                wedstrijdenGewonnen
+                wedstrijdenGewonnenThuis
+                wedstrijdenGewonnenUit
+                wedstrijdenVerloren
+                wedstrijdenVerlorenThuis
+                wedstrijdenVerlorenUit
+                wedstrijdenGelijkspel
+                gemPuntenPerMatch
+                doelpuntenGemaakt
+                doelpuntenTegen
+                spelers {{
+                    naam
+                    leeftijd
+                    positie
+                    minutenGespeeld
+                }}
+            }}
+            teamMatches(teamName: "{team}", limit: 100) {{
+                datum
+                thuisploeg {{
+                    naam
+                    eindplaats
+                }}
+                uitploeg {{
+                    naam
+                    eindplaats
+                }}
+                score {{
+                    thuisploegDoelpunten
+                    uitploegDoelpunten
+                }}
+            }}
+        }}
+        """
+        result = graphql(schema, query_string)
+        if result.errors:
+            return json.dumps({"errors": [str(e) for e in result.errors]})
+        return json.dumps({
+            "team": result.data.get("team"),
+            "matches": result.data.get("teamMatches", [])
+        }, default=str)
+    else:
+        # Standaard: alle wedstrijden
+        query_string = """
+        {
+          matches(limit: 5) {
+            datum
+            thuisploeg {
+              naam
+              wedstrijdenGespeeld
+              wedstrijdenGewonnen
+              eindplaats
+              doelpuntenGemaakt
+              doelpuntenTegen
+            }
+            uitploeg {
+              naam
+              wedstrijdenGespeeld
+              wedstrijdenGewonnen
+              eindplaats
+              doelpuntenGemaakt
+              doelpuntenTegen
+            }
+            score {
+              thuisploegDoelpunten
+              uitploegDoelpunten
+            }
+          }
         }
-        uitploeg {
-          naam
-        }
-        score {
-          thuisploegDoelpunten
-          uitploegDoelpunten
-        }
-      }
-    }
-    """
-    result = graphql(schema, query_string)
-    if result.errors:
-        return json.dumps({"errors": [str(e) for e in result.errors]})
-    return json.dumps(result.data, default=str)
+        """
+        result = graphql(schema, query_string)
+        if result.errors:
+            return json.dumps({"errors": [str(e) for e in result.errors]})
+        return json.dumps({"matches": result.data.get("matches", [])}, default=str)
 
 myWebApp.add_url_rule('/graphiql',
                         view_func=GraphQLView.as_view('graphql',
