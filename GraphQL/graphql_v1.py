@@ -262,6 +262,9 @@ def api_matches():
             }}
             teamMatches(teamName: "{team}", limit: 100) {{
                 datum
+                stadion
+                aantalBezoekers
+                scheidsrechter
                 thuisploeg {{
                     naam
                     eindplaats
