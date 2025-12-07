@@ -89,11 +89,14 @@
   </head>
   <body>
     <h1>Websockets</h1>
+    <h3>Actieve gebruikers:</h3>
+    <div id="userList"></div>
+    <br>
     <div id="chat"></div>
 
     <form>
       <input type="text" id="invoer" />
-      <button type="button" onclick="stuurnaarWSS()">Stuur</button>
+      <button type="button" onclick="sendToWSS()">Stuur</button>
     </form>
 
     <form>
@@ -109,7 +112,7 @@
     <script type="text/javascript">
       var mySocket = new WebSocket("ws://127.0.0.1:3001");
       var chat = document.getElementById("chat");
-      var color = "black"; // Nodig om de "ik stuur" kleur ook aan te passen
+      var color = "black";
 
       mySocket.addEventListener("open", (evt) => {
         alert("Socket opened!");
@@ -117,41 +120,90 @@
       });
 
       mySocket.addEventListener("message", (evt) => {
-        let messageDiv = document.createElement("div");
-        messageDiv.innerHTML = evt.data;
-        chat.appendChild(messageDiv);
+        // Controleren of de data in JSON formaat is, anders zal parse niet werken
+        try {
+          var data = JSON.parse(evt.data);
+
+          if (data.type === "users_list") {
+            updateUserListUI(data.users);
+          }
+        } catch (e) {
+          let messageDiv = document.createElement("div");
+          messageDiv.innerHTML = evt.data;
+          chat.appendChild(messageDiv);
+        }
       });
 
-      function stuurnaarWSS() {
+      // HTML al aanpassen met eigen antwoord, en doorsturen naar de socket voor de andere
+      function sendToWSS() {
         var tekst = document.getElementById("invoer").value;
         chat.innerHTML += "<div style=\"color:" + color + "\">Ik stuur: " + tekst + "</div>";
         mySocket.send(JSON.stringify({ type: "message", content: tekst }));
       }
 
+      // Username aanpassen en doorsturen naar de socket
       function submitUsername() {
         var username = document.getElementById("username").value;
-        mySocket.send(JSON.stringify({ type: "username", content: username }));
+
+        mySocket.send(JSON.stringify({
+          type: "username",
+          content: username
+        }));
+
         alert("Username aangepast");
       }
 
+      // De lijst met users aanpassen in de view
+      function updateUserListUI(users) {
+        var listContainer = document.getElementById("userList");
+        listContainer.innerHTML = "";   // De lijst resetten voordat we een nieuwe gebruiker toevoegen (anders dubbele namen)
+
+        users.forEach((user) => {
+          var userDiv = document.createElement("div");
+          userDiv.textContent = user.name;
+          userDiv.style.cursor = "pointer";
+          userDiv.style.color = user.color;
+
+          userDiv.onclick = function() {
+            let message = prompt("Typ je privébericht aan " + user.name + " : ");
+
+            // Het bericht al tonen in de HTML en doorsturen naar de socket
+            if (message) {
+              chat.innerHTML += "<div style='color:purple; font-style:italic;'> (Privé aan " + user.name + "): " + message + "</div>";
+              mySocket.send(JSON.stringify({
+                type: "private_message",
+                target: user.name,
+                content: message
+              }));
+            }
+          }
+
+          listContainer.appendChild(userDiv);
+        })
+      }
+
+      // De kleur aanpassen en doorsturen naar socket
       function submitColor() {
-        color = document.getElementById("color").value; // Geen 'var' - update globale variabele
+        color = document.getElementById("color").value;
         mySocket.send(JSON.stringify({ type: "color", content: color}));
         alert("Kleur user aangepast");
       }
 
+      // Bericht sturen
       function sendMsg() {
         if (mySOcket.readyState == WebSocket.OPEN) {
           mySocket.send(new Date());
         }
       }
 
+      // Socket sluiten
       function closeSocket() {
         if (mySocket.readyState == WebSocket.OPEN) {
           mySocket.close();
         }
       }
 
+      // Nieuwe socket aanmaken
       function newSocket() {
         if (mySocket.readyState == WebSocket.CLOSED) {
           mySocket = new WebSocket("ws://127.0.0.1:3001");
