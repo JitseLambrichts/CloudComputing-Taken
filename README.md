@@ -27,4 +27,11 @@ De GraphQL service stelt een soort kalender voor, waarbij er matchen van een voe
 Voor de mogelijke query's, zie de introductie op de website
 
 ## Taak 3: Websockets in JavaScript
-Deze applicatie stelt een communicatie-platform voor waarbij gebruikers een naam en een kleur van chat kunnen instellen
+Deze applicatie stelt een communicatie-platform voor waarbij gebruikers een naam en een kleur van chat kunnen instellen. Als er in de lijst van de actieve gebuikers een gebruiker wordt aangeklikt, kan er ook een persoonlijk bericht naar deze user gestuurd worden
+
+## Taak 4: MQTT in Python
+Voor deze service op te starten:
+- Ontvanger laten luisteren: ```cd MQTT/MQTT_receiver && python3 main.py```
+- Verzender laten genereren: ```cd MQTT/MQTT_sender/mqtt-simulator && python3 main.py```
+
+Deze service stelt de sportgegevens van een sporter voor.
