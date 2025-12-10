@@ -1,5 +1,6 @@
 import argparse
 import sys
+import time
 from json import JSONDecodeError
 from pathlib import Path
 
@@ -51,3 +52,5 @@ except (JSONDecodeError, PydanticValidationError, SimulatorValidationError) as e
 
 simulator = Simulator(publishers)
 simulator.run()
+
+

@@ -11,7 +11,14 @@ if __name__ == '__main__':
     print("************")
     print("**  MQTT  **")
     print("************")
+
+    # Nodig voor de grafiek te plotten
+    import mqtt_functies
+    mqtt_functies.live_plotter = LivePlotter(max_points=90)
+
     client = create_client()
+    mqtt_functies.live_plotter.client = client
+    
     client.on_connect = report_connect_status
     # client.on_publish = on_publish
 
@@ -20,6 +27,15 @@ if __name__ == '__main__':
 
     client.subscribe("prestatie")
 
-    # send_messages(client)   # Nodig om de service op te roepen
-    client.loop_forever()
+    mqtt_thread = threading.Thread(target=client.loop_forever, daemon=True)
+    mqtt_thread.start()
+
+    try: 
+        # Start de plotter (dit blokkeert tot het venster wordt gesloten)
+        mqtt_functies.live_plotter.start()
+    except KeyboardInterrupt:
+        pass
+    
+    print("Shutting down...")
+    client.disconnect()
 
