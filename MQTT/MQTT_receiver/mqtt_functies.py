@@ -84,17 +84,15 @@ class LivePlotter:
             "lactaat_waardes": deque(maxlen=max_points),
             "zuurstof_opname": deque(maxlen=max_points)
         }
-        # gebruik max_points ook als minute limit (1..minute_limit)
         self.minutes = deque(maxlen=max_points)
         self._minute_counter = 1
-        self.minute_limit = max_points  # stop zodra deze bereikt wordt
+        self.minute_limit = max_points
         self.timestamps = deque(maxlen=max_points)
-        # client reference + stopped flag (nieuw)
         self.client = None
         self._stopped = False
-        # Figuur direct initialiseren
-        self.fig, self.axes = plt.subplots(2, 2, figsize=(12, 8))
-        self.fig.suptitle("Live Prestatie Data")
+        # Grotere figuur en betere spacing
+        self.fig, self.axes = plt.subplots(2, 2, figsize=(10, 8))
+        self.fig.suptitle("Live Prestatie Data", fontsize=16, fontweight='bold')
         self.ani = None
     
     def add_data(self, data_dict):
@@ -129,26 +127,25 @@ class LivePlotter:
             # plt.close(self.fig)  # verwijderd
                     
     def update_plot(self, frame):
-        # Gebruik minute-as als x-as en zet zichtbare range 1..minute_limit
         for idx, (metric, ax) in enumerate(zip(self.data.keys(), self.axes.flat)):
             ax.clear()
             if self.data[metric]:
                 x = list(self.minutes)
                 y = list(self.data[metric])
-                # zorg dat x en y dezelfde lengte hebben (safety)
                 if len(x) != len(y):
                     x = x[-len(y):]
-                ax.plot(x, y, marker='o', linestyle='-')
-                ax.set_title(metric.replace("_", " ").title())
-                ax.set_ylabel("Waarde")
-                ax.set_xlabel("Minuut")
+                ax.plot(x, y, marker='o', linestyle='-', linewidth=2, markersize=5)
+                ax.set_title(metric.replace("_", " ").title(), fontsize=12, fontweight='bold')
+                ax.set_ylabel("Waarde", fontsize=10)
+                ax.set_xlabel("Minuut", fontsize=10)
                 ax.set_xlim(1, self.minute_limit)
-                # toon ticks elke 5 minuten om overlap te voorkomen
-                ax.set_xticks(range(1, self.minute_limit + 1, max(1, self.minute_limit // 18)))
+                ax.set_xticks(range(1, self.minute_limit + 1, max(1, self.minute_limit // 10)))
+                # Roteer labels om overlapping te voorkomen
+                ax.tick_params(axis='x', rotation=45)
                 ax.grid(True, alpha=0.3)
         
     def start(self):
-        # Start de animatie en blokkeer met show() zodat het venster open blijft en reageert
         self.ani = FuncAnimation(self.fig, self.update_plot, interval=100)
-        plt.tight_layout()
+        # Betere spacing met subplots_adjust
+        self.fig.subplots_adjust(left=0.1, right=0.95, top=0.93, bottom=0.1, hspace=0.35, wspace=0.3)
         plt.show()
