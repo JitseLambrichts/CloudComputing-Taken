@@ -27,14 +27,10 @@ if __name__ == '__main__':
 
     client.subscribe("prestatie")
 
-    mqtt_thread = threading.Thread(target=client.loop_forever, daemon=True)
-    mqtt_thread.start()
+    client.loop_start()
 
-    try: 
-        # Start de plotter (dit blokkeert tot het venster wordt gesloten)
-        mqtt_functies.live_plotter.start()
-    except KeyboardInterrupt:
-        pass
+    # Start de plotter (dit blokkeert tot het venster wordt gesloten)
+    mqtt_functies.live_plotter.start()
     
     print("Shutting down...")
     client.disconnect()
