@@ -140,21 +140,24 @@ class LivePlotter:
             except Exception as e:
                 print(f"Failed to disconnect client: {e}")
                     
-    def update_plot(self, frame):
+    def update_plot(self):
         for idx, (metric, ax) in enumerate(zip(self.data.keys(), self.axes.flat)):
             ax.clear()
             if self.data[metric]:
                 y = list(self.data[metric])
                 x = list(range(1, len(y) + 1))
+
                 ax.plot(x, y, marker='o', linestyle='-', linewidth=2, markersize=5)
+
                 ax.set_title(metric.replace("_", " ").title(), fontsize=12, fontweight='bold')
-                # Y-as label met eenheid toevoegen
+
                 unit = self.units.get(metric, "")
-                ylabel = f"{unit}" if unit else "Waarde"
-                ax.set_ylabel(ylabel, fontsize=10)
+                ax.set_ylabel(unit, fontsize=10)
+
                 ax.set_xlabel("Minuut", fontsize=10)
                 ax.set_xlim(1, self.minute_limit)
                 ax.set_xticks(range(1, self.minute_limit + 1, max(1, self.minute_limit // 10)))
+
                 ax.tick_params(axis='x', rotation=45)
                 ax.grid(True, alpha=0.3)
         # Opslaan in een file in plaats van plt.show() aangezien Docker deze window niet kan openen
@@ -164,5 +167,5 @@ class LivePlotter:
         self.fig.subplots_adjust(left=0.1, right=0.95, top=0.93, bottom=0.1, hspace=0.35, wspace=0.3)
         
         while not self._stopped:
-            self.update_plot(None)
+            self.update_plot()
             time.sleep(1)
