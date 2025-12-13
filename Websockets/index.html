@@ -67,7 +67,7 @@
         transition: background-color 0.2s;
         -webkit-tap-highlight-color: transparent; 
       }
-      
+
     </style>
   </head>
   <body>
@@ -171,29 +171,7 @@
         mySocket.send(JSON.stringify({ type: "color", content: color}));
         alert("Kleur user aangepast");
       }
-
-      // Bericht sturen
-      function sendMsg() {
-        if (mySOcket.readyState == WebSocket.OPEN) {
-          mySocket.send(new Date());
-        }
-      }
-
-      // Socket sluiten
-      function closeSocket() {
-        if (mySocket.readyState == WebSocket.OPEN) {
-          mySocket.close();
-        }
-      }
-
-      // Nieuwe socket aanmaken
-      function newSocket() {
-        if (mySocket.readyState == WebSocket.CLOSED) {
-          mySocket = new WebSocket("ws://127.0.0.1:3001");
-        } else if (mySocket.readyState == WebSocket.CLOSING) {
-          alert("Please wait untill succesfully closed the previous socket");
-        }
-      }
+      
     </script>
   </body>
 </html>
