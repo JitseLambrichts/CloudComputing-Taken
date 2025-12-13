@@ -90,7 +90,7 @@ function updateUserList() {
   }));
 
   let message = JSON.stringify({
-    type: "users_list",
+    type: "users_list",           // Hier dus het type doorgeven om te checken wat de websocket moet doen
     users: users
   });
   
