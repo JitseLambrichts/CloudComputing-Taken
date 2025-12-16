@@ -5,9 +5,15 @@ import io.grpc.ManagedChannelBuilder;
 
 public class AnalyticsClient {
     public static void main(String[] args) {
-        String playerName = "Konstaninos Karetsas";
+        String playerName = "Bryan Heynen";
 
-        ManagedChannel channel = ManagedChannelBuilder.forAddress("localhost", 8080)
+        // Moeten aanpassen voor in docker te kunnen werken --> bronvermelding Copilot
+        String host = System.getenv("GRPC_HOST") != null ? System.getenv("GRPC_HOST") : "localhost";
+        int port = System.getenv("GRPC_PORT") != null ? Integer.parseInt(System.getenv("GRPC_PORT")) : 8080;
+
+        System.out.println("Verbinden met gRPC server op " + host + ":" + port);
+
+        ManagedChannel channel = ManagedChannelBuilder.forAddress(host, port)
                 .usePlaintext()
                 .build();
 
