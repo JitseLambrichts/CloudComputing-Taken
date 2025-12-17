@@ -15,4 +15,15 @@ class AnalyticsServiceClient extends BaseStub {
             ['\App\Models\PlayerStatus', 'decode'],
             $metadata, $options);
     }
+
+
+    public function StreamPlayerAnalytics($metadata = [], $options = []) {
+        return $this->_serverStreamRequest(
+            '/be.cloud.AnalyticsService/StreamPlayerAnalytics',
+            [],
+            ['\\App\\Models\\AnalysisResponse', 'decode'],
+            $metadata,
+            $options
+        );
+    }
 }

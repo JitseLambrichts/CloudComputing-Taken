@@ -36,6 +36,16 @@ public final class Analytics extends com.google.protobuf.GeneratedFile {
   static final 
     com.google.protobuf.GeneratedMessage.FieldAccessorTable
       internal_static_be_cloud_PlayerStatus_fieldAccessorTable;
+  static final com.google.protobuf.Descriptors.Descriptor
+    internal_static_be_cloud_LivePlayerUpdate_descriptor;
+  static final 
+    com.google.protobuf.GeneratedMessage.FieldAccessorTable
+      internal_static_be_cloud_LivePlayerUpdate_fieldAccessorTable;
+  static final com.google.protobuf.Descriptors.Descriptor
+    internal_static_be_cloud_AnalysisResponse_descriptor;
+  static final 
+    com.google.protobuf.GeneratedMessage.FieldAccessorTable
+      internal_static_be_cloud_AnalysisResponse_fieldAccessorTable;
 
   public static com.google.protobuf.Descriptors.FileDescriptor
       getDescriptor() {
@@ -48,10 +58,18 @@ public final class Analytics extends com.google.protobuf.GeneratedFile {
       "\n\017analytics.proto\022\010be.cloud\"#\n\rPlayerReq" +
       "uest\022\022\n\nplayerName\030\001 \001(\t\"Y\n\014PlayerStatus" +
       "\022\022\n\nplayerName\030\001 \001(\t\022\021\n\theartRate\030\002 \001(\005\022" +
-      "\017\n\007lactate\030\003 \001(\002\022\021\n\texhausted\030\004 \001(\0102V\n\020A" +
-      "nalyticsService\022B\n\017GetPlayerStatus\022\027.be." +
-      "cloud.PlayerRequest\032\026.be.cloud.PlayerSta" +
-      "tusB\002P\001b\006proto3"
+      "\017\n\007lactate\030\003 \001(\002\022\021\n\texhausted\030\004 \001(\010\"k\n\020L" +
+      "ivePlayerUpdate\022\022\n\nplayerName\030\001 \001(\t\022\030\n\020c" +
+      "urrentHeartRate\030\002 \001(\005\022\026\n\016currentLactate\030" +
+      "\003 \001(\002\022\021\n\ttimestamp\030\004 \001(\003\"n\n\020AnalysisResp" +
+      "onse\022\022\n\nplayerName\030\001 \001(\t\022\026\n\016recommendati" +
+      "on\030\002 \001(\t\022\030\n\020shouldSubstitute\030\003 \001(\010\022\024\n\014fa" +
+      "tigueLevel\030\004 \001(\0052\253\001\n\020AnalyticsService\022B\n" +
+      "\017GetPlayerStatus\022\027.be.cloud.PlayerReques" +
+      "t\032\026.be.cloud.PlayerStatus\022S\n\025StreamPlaye" +
+      "rAnalytics\022\032.be.cloud.LivePlayerUpdate\032\032" +
+      ".be.cloud.AnalysisResponse(\0010\001B\002P\001b\006prot" +
+      "o3"
     };
     descriptor = com.google.protobuf.Descriptors.FileDescriptor
       .internalBuildGeneratedFileFrom(descriptorData,
@@ -69,6 +87,18 @@ public final class Analytics extends com.google.protobuf.GeneratedFile {
       com.google.protobuf.GeneratedMessage.FieldAccessorTable(
         internal_static_be_cloud_PlayerStatus_descriptor,
         new java.lang.String[] { "PlayerName", "HeartRate", "Lactate", "Exhausted", });
+    internal_static_be_cloud_LivePlayerUpdate_descriptor =
+      getDescriptor().getMessageType(2);
+    internal_static_be_cloud_LivePlayerUpdate_fieldAccessorTable = new
+      com.google.protobuf.GeneratedMessage.FieldAccessorTable(
+        internal_static_be_cloud_LivePlayerUpdate_descriptor,
+        new java.lang.String[] { "PlayerName", "CurrentHeartRate", "CurrentLactate", "Timestamp", });
+    internal_static_be_cloud_AnalysisResponse_descriptor =
+      getDescriptor().getMessageType(3);
+    internal_static_be_cloud_AnalysisResponse_fieldAccessorTable = new
+      com.google.protobuf.GeneratedMessage.FieldAccessorTable(
+        internal_static_be_cloud_AnalysisResponse_descriptor,
+        new java.lang.String[] { "PlayerName", "Recommendation", "ShouldSubstitute", "FatigueLevel", });
     descriptor.resolveAllFeaturesImmutable();
   }
 
