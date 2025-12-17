@@ -8,3 +8,6 @@ Route::get('/', function () {
 });
 
 Route::get('/analytics', [AnalyticsController::class, 'getStatus']);
+
+Route::get('/api/players', [AnalyticsController::class, 'getPlayers']);
+Route::get('/analytics', [AnalyticsController::class, 'getStatus']);
