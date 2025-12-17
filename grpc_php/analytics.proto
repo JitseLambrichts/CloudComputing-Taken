@@ -1,0 +1,24 @@
+syntax = "proto3";
+
+option java_multiple_files = true;
+package be.cloud;
+
+option php_namespace = "App\\Models";
+option php_metadata_namespace = "App\\Models\\GPBMetadata";
+
+message PlayerRequest {
+  string player_name = 1;
+}
+
+message PlayerStatus {
+  string player_name = 1;
+  int32 heart_rate = 2;
+  float lactate = 3;
+  bool exhausted = 4;
+}
+
+// Spelers data ophalen
+service AnalyticsService {
+  // Haalt de data op van spelers
+  rpc GetPlayerStatus(PlayerRequest) returns (PlayerStatus);
+}
