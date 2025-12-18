@@ -52,7 +52,7 @@ public class StreamingAnalyticsClient {
         // Nieuwe speler (met nieuwe gegevens) doorsturen naar de server
         StreamObserver<LivePlayerUpdate> requestObserver = asyncStub.streamPlayerAnalytics(responseObserver);
 
-        String[] players = {"Bryan Heynen", "Konstantins Karetsas", "Matte Smets"};
+        String[] players = {"Bryan Heynen", "Konstantinos Karetsas", "Matte Smets"};
 
         Random random = new Random();
 
