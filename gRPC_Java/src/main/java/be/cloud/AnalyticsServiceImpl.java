@@ -9,11 +9,15 @@ public class AnalyticsServiceImpl extends AnalyticsServiceGrpc.AnalyticsServiceI
         return new StreamObserver<LivePlayerUpdate>() {
             @Override
             public void onNext(LivePlayerUpdate update) {
+                // Dit is de functie die de server op de gegevens van de client toepast
                 System.out.println("Ontvagen update voor: " + update.getPlayerName());
+                System.out.println("Gegevens verwerken...");
 
-                boolean shouldSubstitute = update.getCurrentHeartRate() > 180 || update.getCurrentLactate() > 15.0f;
                 int fatigueLevel = calculateFatigueLevel(update);
+                boolean shouldSubstitute = fatigueLevel >= 8;
+                
                 String recommendation = shouldSubstitute ? "Wissel speler" : "Speler kan nog doorspelen";
+                
 
                 AnalysisResponse response = AnalysisResponse.newBuilder()
                         .setPlayerName(update.getPlayerName())
@@ -21,6 +25,8 @@ public class AnalyticsServiceImpl extends AnalyticsServiceGrpc.AnalyticsServiceI
                         .setShouldSubstitute(shouldSubstitute)
                         .setFatigueLevel(fatigueLevel)
                         .build();
+
+                System.out.println("Gegevens succesvol verwerkt, nu doorsturen naar de client");
 
                 responseObserver.onNext(response);
             }
@@ -37,7 +43,7 @@ public class AnalyticsServiceImpl extends AnalyticsServiceGrpc.AnalyticsServiceI
             }
 
             private int calculateFatigueLevel(LivePlayerUpdate update) {
-                int level = (int) ((update.getCurrentHeartRate() / 20) + update.getCurrentLactate() / 2);
+                int level = (int) ((update.getCurrentHeartRate() / 35) + update.getCurrentLactate() / 3);
                 return Math.min(10, Math.max(1, level));
             }
         };

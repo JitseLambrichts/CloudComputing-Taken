@@ -25,10 +25,11 @@ public class StreamingAnalyticsClient {
         StreamObserver<AnalysisResponse> responseObserver = new StreamObserver<>() {
             @Override
             public void onNext(AnalysisResponse response) {
-                System.out.println("ANALYSE ONTVANGEN ");
+                System.out.println("=== ANALYSE ONTVANGEN ===");
                 System.out.println("Speler: " + response.getPlayerName());
                 System.out.println("Vermoeidheid level: " + response.getFatigueLevel());
                 System.out.println("Aanbeveling: " + response.getRecommendation());
+                System.out.println("=== EINDE ANALYSE SPELER ===");
                 System.out.println();
             }
 
@@ -51,15 +52,18 @@ public class StreamingAnalyticsClient {
 
         Random random = new Random();
 
-        for (int i = 0; i < 5; i++) {
+        for (String player : players) {
             LivePlayerUpdate update = LivePlayerUpdate.newBuilder()
-                    .setPlayerName(players[random.nextInt(players.length)])
+                    .setPlayerName(player)
                     .setCurrentHeartRate(120 + random.nextInt(80))
                     .setCurrentLactate(2.0f + random.nextFloat() * 15.0f)
                     .setTimestamp(System.currentTimeMillis())
                     .build();
 
+            System.out.println("=== STUUR ANALYSE ===");
             System.out.println("Stuur update voor: " + update.getPlayerName());
+            System.out.println("Met hartslag: " + update.getCurrentHeartRate());
+            System.out.println("Met lactaat-waardes: " + update.getCurrentLactate());
             requestObserver.onNext(update);
             Thread.sleep(1000);            
         }
