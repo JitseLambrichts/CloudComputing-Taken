@@ -3,17 +3,6 @@ syntax = "proto3";
 option java_multiple_files = true;
 package be.cloud;
 
-message PlayerRequest {
-  string playerName = 1;
-}
-
-message PlayerStatus {
-  string playerName = 1;
-  int32 heartRate = 2;
-  float lactate = 3;
-  bool exhausted = 4;
-}
-
 message LivePlayerUpdate {
   string playerName = 1;
   int32 currentHeartRate = 2;
@@ -29,6 +18,6 @@ message AnalysisResponse {
 }
 
 service AnalyticsService {
-  rpc GetPlayerStatus(PlayerRequest) returns (PlayerStatus);
-  rpc StreamPlayerAnalytics(stream LivePlayerUpdate) returns (stream AnalysisResponse); // Stream zorgt voor Bidirectional Streaming --> uitbreiding
+  // Stream zorgt voor Bidirectional Streaming --> uitbreiding
+  rpc StreamPlayerAnalytics(stream LivePlayerUpdate) returns (stream AnalysisResponse); 
 }

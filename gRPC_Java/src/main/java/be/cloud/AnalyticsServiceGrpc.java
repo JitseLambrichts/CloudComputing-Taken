@@ -12,37 +12,6 @@ public final class AnalyticsServiceGrpc {
   public static final java.lang.String SERVICE_NAME = "be.cloud.AnalyticsService";
 
   // Static method descriptors that strictly reflect the proto.
-  private static volatile io.grpc.MethodDescriptor<be.cloud.PlayerRequest,
-      be.cloud.PlayerStatus> getGetPlayerStatusMethod;
-
-  @io.grpc.stub.annotations.RpcMethod(
-      fullMethodName = SERVICE_NAME + '/' + "GetPlayerStatus",
-      requestType = be.cloud.PlayerRequest.class,
-      responseType = be.cloud.PlayerStatus.class,
-      methodType = io.grpc.MethodDescriptor.MethodType.UNARY)
-  public static io.grpc.MethodDescriptor<be.cloud.PlayerRequest,
-      be.cloud.PlayerStatus> getGetPlayerStatusMethod() {
-    io.grpc.MethodDescriptor<be.cloud.PlayerRequest, be.cloud.PlayerStatus> getGetPlayerStatusMethod;
-    if ((getGetPlayerStatusMethod = AnalyticsServiceGrpc.getGetPlayerStatusMethod) == null) {
-      synchronized (AnalyticsServiceGrpc.class) {
-        if ((getGetPlayerStatusMethod = AnalyticsServiceGrpc.getGetPlayerStatusMethod) == null) {
-          AnalyticsServiceGrpc.getGetPlayerStatusMethod = getGetPlayerStatusMethod =
-              io.grpc.MethodDescriptor.<be.cloud.PlayerRequest, be.cloud.PlayerStatus>newBuilder()
-              .setType(io.grpc.MethodDescriptor.MethodType.UNARY)
-              .setFullMethodName(generateFullMethodName(SERVICE_NAME, "GetPlayerStatus"))
-              .setSampledToLocalTracing(true)
-              .setRequestMarshaller(io.grpc.protobuf.ProtoUtils.marshaller(
-                  be.cloud.PlayerRequest.getDefaultInstance()))
-              .setResponseMarshaller(io.grpc.protobuf.ProtoUtils.marshaller(
-                  be.cloud.PlayerStatus.getDefaultInstance()))
-              .setSchemaDescriptor(new AnalyticsServiceMethodDescriptorSupplier("GetPlayerStatus"))
-              .build();
-        }
-      }
-    }
-    return getGetPlayerStatusMethod;
-  }
-
   private static volatile io.grpc.MethodDescriptor<be.cloud.LivePlayerUpdate,
       be.cloud.AnalysisResponse> getStreamPlayerAnalyticsMethod;
 
@@ -138,13 +107,6 @@ public final class AnalyticsServiceGrpc {
   public interface AsyncService {
 
     /**
-     */
-    default void getPlayerStatus(be.cloud.PlayerRequest request,
-        io.grpc.stub.StreamObserver<be.cloud.PlayerStatus> responseObserver) {
-      io.grpc.stub.ServerCalls.asyncUnimplementedUnaryCall(getGetPlayerStatusMethod(), responseObserver);
-    }
-
-    /**
      * <pre>
      * Stream zorgt voor Bidirectional Streaming --&gt; uitbreiding
      * </pre>
@@ -183,14 +145,6 @@ public final class AnalyticsServiceGrpc {
     }
 
     /**
-     */
-    public void getPlayerStatus(be.cloud.PlayerRequest request,
-        io.grpc.stub.StreamObserver<be.cloud.PlayerStatus> responseObserver) {
-      io.grpc.stub.ClientCalls.asyncUnaryCall(
-          getChannel().newCall(getGetPlayerStatusMethod(), getCallOptions()), request, responseObserver);
-    }
-
-    /**
      * <pre>
      * Stream zorgt voor Bidirectional Streaming --&gt; uitbreiding
      * </pre>
@@ -216,13 +170,6 @@ public final class AnalyticsServiceGrpc {
     protected AnalyticsServiceBlockingV2Stub build(
         io.grpc.Channel channel, io.grpc.CallOptions callOptions) {
       return new AnalyticsServiceBlockingV2Stub(channel, callOptions);
-    }
-
-    /**
-     */
-    public be.cloud.PlayerStatus getPlayerStatus(be.cloud.PlayerRequest request) throws io.grpc.StatusException {
-      return io.grpc.stub.ClientCalls.blockingV2UnaryCall(
-          getChannel(), getGetPlayerStatusMethod(), getCallOptions(), request);
     }
 
     /**
@@ -253,13 +200,6 @@ public final class AnalyticsServiceGrpc {
         io.grpc.Channel channel, io.grpc.CallOptions callOptions) {
       return new AnalyticsServiceBlockingStub(channel, callOptions);
     }
-
-    /**
-     */
-    public be.cloud.PlayerStatus getPlayerStatus(be.cloud.PlayerRequest request) {
-      return io.grpc.stub.ClientCalls.blockingUnaryCall(
-          getChannel(), getGetPlayerStatusMethod(), getCallOptions(), request);
-    }
   }
 
   /**
@@ -277,18 +217,9 @@ public final class AnalyticsServiceGrpc {
         io.grpc.Channel channel, io.grpc.CallOptions callOptions) {
       return new AnalyticsServiceFutureStub(channel, callOptions);
     }
-
-    /**
-     */
-    public com.google.common.util.concurrent.ListenableFuture<be.cloud.PlayerStatus> getPlayerStatus(
-        be.cloud.PlayerRequest request) {
-      return io.grpc.stub.ClientCalls.futureUnaryCall(
-          getChannel().newCall(getGetPlayerStatusMethod(), getCallOptions()), request);
-    }
   }
 
-  private static final int METHODID_GET_PLAYER_STATUS = 0;
-  private static final int METHODID_STREAM_PLAYER_ANALYTICS = 1;
+  private static final int METHODID_STREAM_PLAYER_ANALYTICS = 0;
 
   private static final class MethodHandlers<Req, Resp> implements
       io.grpc.stub.ServerCalls.UnaryMethod<Req, Resp>,
@@ -307,10 +238,6 @@ public final class AnalyticsServiceGrpc {
     @java.lang.SuppressWarnings("unchecked")
     public void invoke(Req request, io.grpc.stub.StreamObserver<Resp> responseObserver) {
       switch (methodId) {
-        case METHODID_GET_PLAYER_STATUS:
-          serviceImpl.getPlayerStatus((be.cloud.PlayerRequest) request,
-              (io.grpc.stub.StreamObserver<be.cloud.PlayerStatus>) responseObserver);
-          break;
         default:
           throw new AssertionError();
       }
@@ -332,13 +259,6 @@ public final class AnalyticsServiceGrpc {
 
   public static final io.grpc.ServerServiceDefinition bindService(AsyncService service) {
     return io.grpc.ServerServiceDefinition.builder(getServiceDescriptor())
-        .addMethod(
-          getGetPlayerStatusMethod(),
-          io.grpc.stub.ServerCalls.asyncUnaryCall(
-            new MethodHandlers<
-              be.cloud.PlayerRequest,
-              be.cloud.PlayerStatus>(
-                service, METHODID_GET_PLAYER_STATUS)))
         .addMethod(
           getStreamPlayerAnalyticsMethod(),
           io.grpc.stub.ServerCalls.asyncBidiStreamingCall(
@@ -394,7 +314,6 @@ public final class AnalyticsServiceGrpc {
         if (result == null) {
           serviceDescriptor = result = io.grpc.ServiceDescriptor.newBuilder(SERVICE_NAME)
               .setSchemaDescriptor(new AnalyticsServiceFileDescriptorSupplier())
-              .addMethod(getGetPlayerStatusMethod())
               .addMethod(getStreamPlayerAnalyticsMethod())
               .build();
         }

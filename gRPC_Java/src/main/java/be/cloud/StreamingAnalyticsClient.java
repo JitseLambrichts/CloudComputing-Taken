@@ -10,6 +10,7 @@ import java.util.concurrent.TimeUnit;
 
 public class StreamingAnalyticsClient {
     public static void main(String[] args) throws InterruptedException {
+        // Dit is nodig om met Docker te kunnen werken --> Bronvermelding Copilot
         String host = System.getenv("GRPC_HOST") != null ? System.getenv("GRPC_HOST") : "localhost";
         int port = System.getenv("GRPC_PORT") != null ? Integer.parseInt(System.getenv("GRPC_PORT")) : 8080;
         
@@ -20,8 +21,10 @@ public class StreamingAnalyticsClient {
         AnalyticsServiceGrpc.AnalyticsServiceStub asyncStub = 
             AnalyticsServiceGrpc.newStub(channel);
 
+        // Voorkomt dat de client stopt na het sturen, want de client moet ook nog gegevens terug ontvangen van de server
         CountDownLatch finishLatch = new CountDownLatch(1);
 
+        // Ontvangen van de server
         StreamObserver<AnalysisResponse> responseObserver = new StreamObserver<>() {
             @Override
             public void onNext(AnalysisResponse response) {
@@ -46,6 +49,7 @@ public class StreamingAnalyticsClient {
             }
         };
 
+        // Nieuwe speler (met nieuwe gegevens) doorsturen naar de server
         StreamObserver<LivePlayerUpdate> requestObserver = asyncStub.streamPlayerAnalytics(responseObserver);
 
         String[] players = {"Bryan Heynen", "Konstantins Karetsas", "Matte Smets"};
